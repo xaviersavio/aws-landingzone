@@ -146,21 +146,21 @@ resource "aws_securitylake_subscriber" "splunk" {
 
   subscriber_name        = "${var.name_prefix}-splunk"
   subscriber_description = "Splunk SIEM integration via S3 access"
-  access_types           = ["S3"]
+  access_type           = ["S3"]
 
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "CLOUD_TRAIL_MGMT"
       source_version = "2"
     }
   }
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "SH_FINDINGS"
       source_version = "1"
     }
   }
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "VPC_FLOW"
       source_version = "1"
@@ -279,27 +279,27 @@ resource "aws_athena_workgroup" "security_lake" {
 resource "aws_securitylake_subscriber" "athena" {
   subscriber_name        = "${var.name_prefix}-athena-queries"
   subscriber_description = "Internal security team Athena access via Lake Formation"
-  access_types           = ["LAKEFORMATION"]
+  access_type           = ["LAKEFORMATION"]
 
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "CLOUD_TRAIL_MGMT"
-      source_version = "2"
+      source_version = "2.0"
     }
   }
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "VPC_FLOW"
       source_version = "1"
     }
   }
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "SH_FINDINGS"
       source_version = "1"
     }
   }
-  sources {
+  source {
     aws_log_source_resource {
       source_name    = "ROUTE53"
       source_version = "1"
@@ -313,8 +313,14 @@ resource "aws_securitylake_subscriber" "athena" {
     external_id = "${var.name_prefix}-athena-${data.aws_caller_identity.current.account_id}"
   }
 
-  tags       = var.tags
-  depends_on = [aws_securitylake_data_lake.primary]
+  tags = var.tags
+  # Subscriber sources must exist before the subscriber can reference them
+  depends_on = [
+    aws_securitylake_aws_log_source.cloudtrail_mgmt,
+    aws_securitylake_aws_log_source.vpc_flow,
+    aws_securitylake_aws_log_source.security_hub,
+    aws_securitylake_aws_log_source.route53,
+  ]
 }
 
 # ─────────────────────────────────────────────
@@ -327,14 +333,14 @@ resource "aws_cloudwatch_event_rule" "critical_findings" {
   description = "Notify on CRITICAL Security Hub findings in Security Lake"
 
   event_pattern = jsonencode({
-    source      = ["aws.securityhub"]
-    detail-type = ["Security Hub Findings - Imported"]
+    source        = ["aws.securityhub"]
+    "detail-type" = ["Security Hub Findings - Imported"]
     detail = {
       findings = {
         Severity = {
           Label = ["CRITICAL", "HIGH"]
         }
-        RecordState = ["ACTIVE"]
+        RecordState   = ["ACTIVE"]
         WorkflowState = ["NEW"]
       }
     }
@@ -351,6 +357,30 @@ resource "aws_sns_topic" "security_alerts" {
   name              = "${var.name_prefix}-security-lake-alerts"
   kms_master_key_id = var.kms_key_id
   tags              = var.tags
+}
+
+# EventBridge requires an explicit resource policy on the SNS topic to publish.
+# Without this, the event target fires but SNS silently rejects it.
+resource "aws_sns_topic_policy" "security_alerts" {
+  arn = aws_sns_topic.security_alerts.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid    = "AllowEventBridgePublish"
+      Effect = "Allow"
+      Principal = {
+        Service = "events.amazonaws.com"
+      }
+      Action   = "sns:Publish"
+      Resource = aws_sns_topic.security_alerts.arn
+      Condition = {
+        ArnLike = {
+          "aws:SourceArn" = aws_cloudwatch_event_rule.critical_findings.arn
+        }
+      }
+    }]
+  })
 }
 
 resource "aws_sns_topic_subscription" "email_alerts" {

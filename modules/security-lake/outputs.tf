@@ -13,6 +13,16 @@ output "athena_subscriber_id" {
   value       = aws_securitylake_subscriber.athena.id
 }
 
+output "athena_workgroup_arn" {
+  description = "ARN of the Athena workgroup for Security Lake queries"
+  value       = aws_athena_workgroup.security_lake.arn
+}
+
+output "athena_query_role_arn" {
+  description = "ARN of the IAM role to assume when running Athena queries against Security Lake"
+  value       = aws_iam_role.security_lake_query.arn
+}
+
 output "splunk_subscriber_id" {
   description = "ID of the Splunk SIEM subscriber (empty if not configured)"
   value       = length(aws_securitylake_subscriber.splunk) > 0 ? aws_securitylake_subscriber.splunk[0].id : ""

@@ -20,7 +20,17 @@ variable "retention_days" {
 }
 
 variable "kms_key_id" {
-  description = "KMS key ID for SNS topic encryption"
+  description = "KMS key ID (short ID, not ARN) for SNS topic encryption"
+  type        = string
+}
+
+variable "kms_key_arn" {
+  description = "KMS key ARN for Athena workgroup query-results encryption"
+  type        = string
+}
+
+variable "athena_results_bucket" {
+  description = "S3 bucket name for Athena query results (must exist before apply)"
   type        = string
 }
 
