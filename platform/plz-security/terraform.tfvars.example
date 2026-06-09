@@ -1,0 +1,13 @@
+aws_region          = "ap-southeast-2"
+name_prefix         = "myorg"
+security_account_id = "111122225555"
+
+# Populate from plz-log-archive outputs
+log_archive_bucket = "myorg-log-archive-111122223333"
+kms_key_id         = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+kms_key_arn        = "arn:aws:kms:ap-southeast-2:111122223333:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+tags = {
+  Owner      = "platform-team"
+  CostCenter = "infra"
+}

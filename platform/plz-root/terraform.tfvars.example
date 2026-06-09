@@ -1,0 +1,19 @@
+aws_region = "ap-southeast-2"
+org_name   = "myorg"
+
+allowed_regions = [
+  "ap-southeast-2",
+  "ap-southeast-1",
+]
+
+account_emails = {
+  security        = "aws-security@example.com"
+  log_archive     = "aws-log-archive@example.com"
+  networking      = "aws-networking@example.com"
+  shared_services = "aws-shared-services@example.com"
+}
+
+tags = {
+  Owner      = "platform-team"
+  CostCenter = "infra"
+}

@@ -1,0 +1,31 @@
+aws_region       = "ap-southeast-2"
+name_prefix      = "myorg"
+tfc_organization = "my-tfc-org"
+
+tfc_workspaces = {
+  plz-root = {
+    project    = "platform"
+    workspace  = "plz-root"
+    policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  }
+  plz-networking = {
+    project    = "platform"
+    workspace  = "plz-networking"
+    policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  }
+  plz-security = {
+    project    = "platform"
+    workspace  = "plz-security"
+    policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  }
+}
+
+# ARN of the management account (allows cross-account role assumption)
+trusted_account_arns = [
+  "arn:aws:iam::111122220000:root",
+]
+
+tags = {
+  Owner      = "platform-team"
+  CostCenter = "infra"
+}

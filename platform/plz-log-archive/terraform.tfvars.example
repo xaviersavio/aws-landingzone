@@ -1,0 +1,9 @@
+aws_region             = "ap-southeast-2"
+name_prefix            = "myorg"
+log_archive_account_id = "111122223333"
+log_retention_days     = 365
+
+tags = {
+  Owner      = "platform-team"
+  CostCenter = "infra"
+}
