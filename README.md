@@ -34,6 +34,12 @@ This codebase implements a **multi-account AWS Landing Zone** using Terraform. I
 
 **Workload Landing Zone (WLZ)** — Isolated AWS accounts where application teams deploy their workloads. Each WLZ inherits PLZ guardrails automatically through SCPs, shared networking, and delegated security services.
 
+### Architecture Diagram
+
+![AWS Landing Zone Architecture](docs/aws_landing_zone.png)
+
+> Regenerate: `python docs/generate_diagram.py`
+
 ---
 
 ### 1.1 AWS Organization Structure
