@@ -1,0 +1,34 @@
+aws_region            = "ap-southeast-2"
+name_prefix           = "myorg"
+networking_account_id = "111122224444"
+
+# From plz-networking outputs
+vpc_id                = "vpc-0abc1234def56789"
+nat_gateway_ids       = ["nat-0abc111", "nat-0abc222"]
+transit_route_table_ids = ["rtb-0abc333", "rtb-0abc444"]
+public_route_table_id = "rtb-0abc555"
+
+inspection_subnet_base_cidr = "10.0.6.0/24"
+spoke_supernet_cidr         = "10.0.0.0/8"
+
+# From plz-log-archive outputs
+log_archive_bucket = "myorg-log-archive-111122223333"
+
+# Start with 'alert' mode — review logs before switching to 'drop'
+default_action = "alert"
+
+allowed_domains = [
+  ".github.com",
+  ".docker.io",
+  ".gcr.io",
+]
+
+blocked_domains = [
+  ".ru",
+  ".onion",
+]
+
+tags = {
+  Owner      = "platform-team"
+  CostCenter = "infra"
+}
